@@ -1,15 +1,22 @@
 pipeline {
-    agent {
-        any { image 'python:3' }
-    }
+    agent any
     stages {
-        stage('build') {
+        stage('Test'){
             steps {
-             sh 'echo $PATH'
+                sh '''python3 -m venv myenv
+                 source myenv/bin/activate
+                 pip3 install requests
+                 python3 main.py'''
+                
             }
         }
     }
-}
-
-
-
+    post {
+        always {
+          xunit(
+              //thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ],
+              tools : [Custom(pattern: 'data.xml', customXSL: 'input.xsl')]
+              )
+        }
+      }  
+ }
